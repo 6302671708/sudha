@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎵 Music Player</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1db954, #121212);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .music-container {
+      text-align: center;
+    }
+
+    .app-title {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      color: #fff;
+    }
+
+    .music-box {
+      background: #282828;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      width: 300px;
+    }
+
+    .music-info h2, .music-info h4 {
+      margin: 5px;
+    }
+
+    .controls {
+      margin-top: 20px;
+    }
+
+    .controls button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      margin: 0 15px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .controls button:hover {
+      color: #1db954;
+      transform: scale(1.2);
+    }
+
+    .progress-container {
+      background: #444;
+      border-radius: 10px;
+      height: 8px;
+      width: 100%;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .progress {
+      background: #1db954;
+      height: 100%;
+      width: 0%;
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="music-container">
+    <h1 class="app-title">🎵 My Music Player</h1>
+    <div class="music-box">
+      <div class="music-info">
+        <h2 id="title">Song Title</h2>
+        <h4 id="artist">Artist Name</h4>
+      </div>
+
+      <audio id="audio" src="songs/song1.mp3"></audio>
+
+      <div class="controls">
+        <button id="prev" title="Previous">⏮</button>
+        <button id="play" title="Play">▶️</button>
+        <button id="next" title="Next">⏭</button>
+      </div>
+
+      <div class="progress-container" id="progress-container">
+        <div class="progress" id="progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const songs = [
+      {
+        title: "Chill Vibes",
+        artist: "DJ Relax",
+        src: "songs/song1.mp3"
+      },
+      {
+        title: "Lo-Fi Beats",
+        artist: "Beatz Maker",
+        src: "songs/song2.mp3"
+      }
+    ];
+
+    let currentSong = 0;
+    let isPlaying = false;
+
+    const audio = document.getElementById("audio");
+    const title = document.getElementById("title");
+    const artist = document.getElementById("artist");
+    const playBtn = document.getElementById("play");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const progress = document.getElementById("progress");
+    const progressContainer = document.getElementById("progress-container");
+
+    function loadSong(songIndex) {
+      const song = songs[songIndex];
+      title.textContent = song.title;
+      artist.textContent = song.artist;
+      audio.src = song.src;
+    }
+
+    function playSong() {
+      audio.play();
+      playBtn.textContent = "⏸";
+      isPlaying = true;
+    }
+
+    function pauseSong() {
+      audio.pause();
+      playBtn.textContent = "▶️";
+      isPlaying = false;
+    }
+
+    playBtn.addEventListener("click", () => {
+      isPlaying ? pauseSong() : playSong();
+    });
+
+    prevBtn.addEventListener("click", () => {
+      currentSong = (currentSong - 1 + songs.length) % songs.length;
+      loadSong(currentSong);
+      playSong();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentSong = (currentSong + 1) % songs.length;
+      loadSong(currentSong);
+      playSong();
+    });
+
+    audio.addEventListener("timeupdate", updateProgress);
+    progressContainer.addEventListener("click", setProgress);
+
+    function updateProgress() {
+      const { duration, currentTime } = audio;
+      const percent = (currentTime / duration) * 100;
+      progress.style.width = `${percent}%`;
+    }
+
+    function setProgress(e) {
+      const width = this.clientWidth;
+      const clickX = e.offsetX;
+      const duration = audio.duration;
+
+      audio.currentTime = (clickX / width) * duration;
+    }
+
+    audio.addEventListener("ended", () => {
+      nextBtn.click();
+    });
+
+    loadSong(currentSong);
+  </script>
+</body>
+</html>
